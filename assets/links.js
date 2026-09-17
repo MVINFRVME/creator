@@ -2,7 +2,7 @@
  * Ссылки на код (GitHub) и скринкасты.
  */
 window.PROJECT_LINKS = {
-  githubBase: 'https://github.com/MVINFRVME/web_test/blob/main',
+  githubBase: 'https://github.com/MVINFRVME/creator/blob/main',
 
   // путь от корня репо → кнопка «Код»
   code: {
