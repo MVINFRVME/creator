@@ -31,7 +31,7 @@
                     <span class="task-title">Задание 1.1: Калькулятор вклада</span>
                     <span class="task-points">1 балл</span>
                 </div>
-                <p class="task-desc">Сумма вклада, срок в месяцах, годовой процент → итог к концу срока.</p>
+                <p class="task-desc">Сумма, срок в месяцах и годовая ставка. Итог — сложные проценты с начислением каждый месяц.</p>
                 <a href="task1-1.php" class="task-link">Демо</a>
                 <span data-task="1.1" data-code></span>
             </li>
@@ -40,7 +40,7 @@
                     <span class="task-title">Задание 1.2: Форматирование даты</span>
                     <span class="task-points">1 балл</span>
                 </div>
-                <p class="task-desc">День и месяц → дата по-русски («1 января», «9 мая»).</p>
+                <p class="task-desc">На входе день и номер месяца, на выходе строка вроде «1 января» или «9 мая» — месяц словом, в родительном падеже.</p>
                 <a href="task1-2.php" class="task-link">Демо</a>
                 <span data-task="1.2" data-code></span>
             </li>
@@ -49,7 +49,7 @@
                     <span class="task-title">Задание 1.3: Калькулятор</span>
                     <span class="task-points">1 балл</span>
                 </div>
-                <p class="task-desc">Два числа и операция +, −, /, *.</p>
+                <p class="task-desc">Два числа и операция: сложение, вычитание, умножение или деление. Деление на ноль обрабатывается отдельно.</p>
                 <a href="task1-3.php" class="task-link">Демо</a>
                 <span data-task="1.3" data-code></span>
             </li>
@@ -58,7 +58,7 @@
                     <span class="task-title">Задание 1.4: Фотогалерея</span>
                     <span class="task-points">2 балла</span>
                 </div>
-                <p class="task-desc">Галерея из папки + загрузка файла.</p>
+                <p class="task-desc">Картинки из папки uploads на странице; через форму можно залить ещё один файл.</p>
                 <a href="task1-4.php" class="task-link">Демо</a>
                 <span data-task="1.4" data-code></span>
             </li>
@@ -67,12 +67,12 @@
                     <span class="task-title">Задание 1.5: Угол между стрелками</span>
                     <span class="task-points">3 балла</span>
                 </div>
-                <p class="task-desc">Часы и минуты → угол между стрелками.</p>
+                <p class="task-desc">Часы и минуты → меньший угол между часовой и минутной стрелками на циферблате (в градусах).</p>
                 <a href="task1-5.php" class="task-link">Демо</a>
                 <span data-task="1.5" data-code></span>
             </li>
         </ul>
-        <a href="/index.html" class="home-link">Вернуться на главную</a>
+        <a href="../index.html" class="home-link">Вернуться на главную</a>
     </div>
     <script src="../assets/links.js"></script>
 </body>

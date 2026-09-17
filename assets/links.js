@@ -15,7 +15,6 @@ window.PROJECT_LINKS = {
     '2.2': '02-frontend/task2-2.html',
     '2.3': '02-frontend/task2-3.html',
     '2.4': '02-frontend/task2-4.html',
-    '3.1': '03-bitrix/task3-1-multisite-guide.md',
     '3.2': '03-bitrix/task3-2-bonus/',
     '3.3': '03-bitrix/task3-3-faq/',
     '3.4': '03-bitrix/task3-4-component/',
