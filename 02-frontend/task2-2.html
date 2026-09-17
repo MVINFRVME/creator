@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Задание 2.2 - Валидатор форм</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: bold;
+        }
+        
+        .required {
+            color: #f44336;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #2196F3;
+        }
+        
+        input.error {
+            border-color: #f44336;
+        }
+        
+        input.success {
+            border-color: #4CAF50;
+        }
+        
+        .error-message {
+            display: none;
+            margin-top: 8px;
+            color: #f44336;
+            font-size: 14px;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        .success-message {
+            display: none;
+            margin-top: 8px;
+            color: #4CAF50;
+            font-size: 14px;
+        }
+        
+        .success-message.show {
+            display: block;
+        }
+        
+        button {
+            width: 100%;
+            padding: 15px;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #1976D2;
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .form-result {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            background: #e8f5e9;
+            border-radius: 4px;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .form-result.show {
+            display: block;
+        }
+        
+        .form-result h3 {
+            color: #2e7d32;
+            margin-bottom: 10px;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-top: 30px;
+            color: #1976d2;
+            text-decoration: none;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        
+        .hint {
+            margin-top: 5px;
+            font-size: 13px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Задание 2.2: Валидатор форм</h1>
+        
+        <form id="validation-form" novalidate>
+            <div class="form-group">
+                <label for="name">
+                    Имя <span class="required">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="name" 
+                    name="name"
+                    placeholder="Введите ваше имя"
+                >
+                <div class="error-message" id="name-error"></div>
+                <div class="success-message" id="name-success">✓ Имя введено корректно</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="phone">
+                    Телефон <span class="required">*</span>
+                </label>
+                <input 
+                    type="tel" 
+                    id="phone" 
+                    name="phone"
+                    placeholder="+7 (999) 123-45-67"
+                >
+                <div class="hint">Формат: +7 (999) 123-45-67</div>
+                <div class="error-message" id="phone-error"></div>
+                <div class="success-message" id="phone-success">✓ Телефон введён корректно</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">
+                    Email <span class="required">*</span>
+                </label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email"
+                    placeholder="example@domain.ru"
+                >
+                <div class="error-message" id="email-error"></div>
+                <div class="success-message" id="email-success">✓ Email введён корректно</div>
+            </div>
+            
+            <button type="submit">Отправить форму</button>
+        </form>
+        
+        <div class="form-result" id="form-result">
+            <h3>Форма успешно отправлена!</h3>
+            <p><strong>Имя:</strong> <span id="result-name"></span></p>
+            <p><strong>Телефон:</strong> <span id="result-phone"></span></p>
+            <p><strong>Email:</strong> <span id="result-email"></span></p>
+        </div>
+        
+        <a href="index.html" class="back-link">Вернуться к списку заданий</a>
+    </div>
+    
+    <script>
+        /**
+         * Валидатор форм с нуля
+         * Поддерживает валидацию text, phone и email полей
+         */
+        
+        var FormValidator = {
+            // Правила валидации
+            rules: {
+                name: {
+                    required: true,
+                    minLength: 2,
+                    message: 'Имя обязательно для заполнения (минимум 2 символа)'
+                },
+                phone: {
+                    required: true,
+                    pattern: /^\+7\s\(\d{3}\)\s\d{3}-\d{2}-\d{2}$/,
+                    message: 'Телефон должен быть в формате +7 (999) 123-45-67'
+                },
+                email: {
+                    required: true,
+                    pattern: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                    message: 'Введите корректный email адрес'
+                }
+            },
+            
+            // Валидация одного поля
+            validateField: function(fieldName, value) {
+                var rule = this.rules[fieldName];
+                if (!rule) return { valid: true };
+                
+                // Проверка обязательности
+                if (rule.required && (!value || value.trim() === '')) {
+                    return {
+                        valid: false,
+                        message: rule.message
+                    };
+                }
+                
+                // Проверка минимальной длины
+                if (rule.minLength && value.length < rule.minLength) {
+                    return {
+                        valid: false,
+                        message: rule.message
+                    };
+                }
+                
+                // Проверка по регулярному выражению
+                if (rule.pattern && !rule.pattern.test(value)) {
+                    return {
+                        valid: false,
+                        message: rule.message
+                    };
+                }
+                
+                return { valid: true };
+            },
+            
+            // Отображение ошибки
+            showError: function(fieldName, message) {
+                var input = document.getElementById(fieldName);
+                var errorEl = document.getElementById(fieldName + '-error');
+                var successEl = document.getElementById(fieldName + '-success');
+                
+                input.className = 'error';
+                errorEl.textContent = message;
+                errorEl.className = 'error-message show';
+                successEl.className = 'success-message';
+            },
+            
+            // Отображение успеха
+            showSuccess: function(fieldName) {
+                var input = document.getElementById(fieldName);
+                var errorEl = document.getElementById(fieldName + '-error');
+                var successEl = document.getElementById(fieldName + '-success');
+                
+                input.className = 'success';
+                errorEl.className = 'error-message';
+                successEl.className = 'success-message show';
+            },
+            
+            // Очистка состояния поля
+            clearState: function(fieldName) {
+                var input = document.getElementById(fieldName);
+                var errorEl = document.getElementById(fieldName + '-error');
+                var successEl = document.getElementById(fieldName + '-success');
+                
+                input.className = '';
+                errorEl.className = 'error-message';
+                successEl.className = 'success-message';
+            },
+            
+            // Валидация всей формы
+            validateForm: function(form) {
+                var isValid = true;
+                var fields = ['name', 'phone', 'email'];
+                
+                for (var i = 0; i < fields.length; i++) {
+                    var fieldName = fields[i];
+                    var input = document.getElementById(fieldName);
+                    var result = this.validateField(fieldName, input.value);
+                    
+                    if (!result.valid) {
+                        this.showError(fieldName, result.message);
+                        isValid = false;
+                    } else {
+                        this.showSuccess(fieldName);
+                    }
+                }
+                
+                return isValid;
+            }
+        };
+        
+        // Инициализация формы
+        (function init() {
+            var form = document.getElementById('validation-form');
+            var fields = ['name', 'phone', 'email'];
+            
+            // Валидация при потере фокуса
+            for (var i = 0; i < fields.length; i++) {
+                var fieldName = fields[i];
+                var input = document.getElementById(fieldName);
+                
+                // Используем замыкание для сохранения fieldName
+                (function(fname) {
+                    input.addEventListener('blur', function() {
+                        var result = FormValidator.validateField(fname, this.value);
+                        if (this.value) {
+                            if (!result.valid) {
+                                FormValidator.showError(fname, result.message);
+                            } else {
+                                FormValidator.showSuccess(fname);
+                            }
+                        }
+                    });
+                    
+                    // Очистка при фокусе
+                    input.addEventListener('focus', function() {
+                        if (!this.value) {
+                            FormValidator.clearState(fname);
+                        }
+                    });
+                    
+                    // Автоформатирование телефона
+                    if (fname === 'phone') {
+                        input.addEventListener('input', function() {
+                            var value = this.value.replace(/\D/g, '');
+                            if (value.length > 0) {
+                                if (value[0] === '8') value = '7' + value.substring(1);
+                                if (value[0] === '7') {
+                                    var formatted = '+7';
+                                    if (value.length > 1) {
+                                        formatted += ' (' + value.substring(1, 4);
+                                    }
+                                    if (value.length > 4) {
+                                        formatted += ') ' + value.substring(4, 7);
+                                    }
+                                    if (value.length > 7) {
+                                        formatted += '-' + value.substring(7, 9);
+                                    }
+                                    if (value.length > 9) {
+                                        formatted += '-' + value.substring(9, 11);
+                                    }
+                                    this.value = formatted;
+                                }
+                            }
+                        });
+                    }
+                })(fieldName);
+            }
+            
+            // Обработка отправки формы
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if (FormValidator.validateForm(form)) {
+                    // Показываем результат
+                    document.getElementById('result-name').textContent = 
+                        document.getElementById('name').value;
+                    document.getElementById('result-phone').textContent = 
+                        document.getElementById('phone').value;
+                    document.getElementById('result-email').textContent = 
+                        document.getElementById('email').value;
+                    
+                    document.getElementById('form-result').className = 'form-result show';
+                    
+                    // Прокрутка к результату
+                    document.getElementById('form-result').scrollIntoView({ 
+                        behavior: 'smooth' 
+                    });
+                }
+            });
+        })();
+    </script>
+</body>
+</html>

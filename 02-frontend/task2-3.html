@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Задание 2.3 - Древовидное меню</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .description {
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .menu {
+            background: #fafafa;
+            padding: 20px;
+            border-radius: 6px;
+        }
+        
+        ul {
+            list-style: none;
+        }
+        
+        li {
+            margin: 5px 0;
+        }
+        
+        ul ul {
+            margin-left: 25px;
+            display: none;
+        }
+        
+        ul ul.open {
+            display: block;
+        }
+        
+        a {
+            color: #2196F3;
+            text-decoration: none;
+            padding: 5px 0;
+            display: inline-block;
+            transition: color 0.3s;
+        }
+        
+        a:hover {
+            color: #1976D2;
+            text-decoration: underline;
+        }
+        
+        .icon {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            margin-right: 5px;
+            text-align: center;
+            font-weight: bold;
+            color: #666;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-top: 30px;
+            color: #1976d2;
+            text-decoration: none;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        
+        code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Задание 2.3: Древовидное меню</h1>
+        
+        <div class="description">
+            <p><strong>Функция setPlusIcon():</strong> для каждого элемента <code>&lt;li&gt;</code>, 
+            содержащего вложенный список, добавляет значок [+]. Регистрирует функцию <code>aClick</code> 
+            как обработчик <code>onclick</code> для всех ссылок.</p>
+            
+            <p style="margin-top: 10px;"><strong>Функция aClick():</strong> при клике на ссылку 
+            ищет родительский <code>&lt;li&gt;</code> и вложенный список. Если вложенного списка нет — 
+            разрешает переход. Если есть — показывает/скрывает список, меняет иконку [+]/[-], 
+            запрещает переход.</p>
+        </div>
+        
+        <div class="menu">
+            <ul id="tree-menu">
+                <li>
+                    <a href="#section1">Раздел 1</a>
+                    <ul>
+                        <li><a href="#item1-1">Пункт 1.1</a></li>
+                        <li><a href="#item1-2">Пункт 1.2</a></li>
+                        <li>
+                            <a href="#subsection1-3">Подраздел 1.3</a>
+                            <ul>
+                                <li><a href="#item1-3-1">Пункт 1.3.1</a></li>
+                                <li><a href="#item1-3-2">Пункт 1.3.2</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#section2">Раздел 2</a>
+                    <ul>
+                        <li><a href="#item2-1">Пункт 2.1</a></li>
+                        <li>
+                            <a href="#subsection2-2">Подраздел 2.2</a>
+                            <ul>
+                                <li><a href="#item2-2-1">Пункт 2.2.1</a></li>
+                                <li><a href="#item2-2-2">Пункт 2.2.2</a></li>
+                                <li><a href="#item2-2-3">Пункт 2.2.3</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="#item2-3">Пункт 2.3</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#section3">Раздел 3</a>
+                    <ul>
+                        <li><a href="#item3-1">Пункт 3.1</a></li>
+                        <li><a href="#item3-2">Пункт 3.2</a></li>
+                    </ul>
+                </li>
+                <li><a href="#section4">Раздел 4 (без вложений)</a></li>
+            </ul>
+        </div>
+        
+        <div style="margin-top: 20px; padding: 15px; background: #e3f2fd; border-radius: 4px;">
+            <strong>Инструкция:</strong> Нажмите на раздел со значком [+] чтобы раскрыть подпункты. 
+            Нажмите на [-] чтобы свернуть. Разделы без подпунктов открываются как обычные ссылки.
+        </div>
+        
+        <a href="index.html" class="back-link">Вернуться к списку заданий</a>
+    </div>
+    
+    <script>
+        /**
+         * Функция setPlusIcon()
+         * Добавляет значок [+] для элементов с вложенными списками
+         * и регистрирует обработчик aClick для всех ссылок
+         */
+        function setPlusIcon() {
+            var menu = document.getElementById('tree-menu');
+            var allLi = menu.getElementsByTagName('li');
+            var allLinks = menu.getElementsByTagName('a');
+            
+            // Проходим по всем элементам li
+            for (var i = 0; i < allLi.length; i++) {
+                var li = allLi[i];
+                var childUl = null;
+                
+                // Ищем вложенный ul (только прямого потомка)
+                for (var j = 0; j < li.childNodes.length; j++) {
+                    var node = li.childNodes[j];
+                    if (node.nodeName === 'UL') {
+                        childUl = node;
+                        break;
+                    }
+                }
+                
+                // Если есть вложенный список, добавляем иконку
+                if (childUl) {
+                    var icon = document.createElement('span');
+                    icon.className = 'icon';
+                    icon.textContent = '[+]';
+                    
+                    // Вставляем иконку перед первым дочерним узлом
+                    li.insertBefore(icon, li.firstChild);
+                }
+            }
+            
+            // Регистрируем обработчик onclick для всех ссылок
+            for (var k = 0; k < allLinks.length; k++) {
+                allLinks[k].onclick = aClick;
+            }
+        }
+        
+        /**
+         * Функция aClick()
+         * Обработчик клика на ссылку в меню
+         */
+        function aClick(event) {
+            event = event || window.event;
+            var link = this;
+            
+            // Получаем родительский li
+            var parentLi = link.parentNode;
+            var childUl = null;
+            var icon = null;
+            
+            // Ищем вложенный ul и иконку
+            for (var i = 0; i < parentLi.childNodes.length; i++) {
+                var node = parentLi.childNodes[i];
+                
+                if (node.nodeName === 'UL') {
+                    childUl = node;
+                }
+                
+                if (node.className === 'icon') {
+                    icon = node;
+                }
+            }
+            
+            // Если нет вложенного списка - разрешаем переход
+            if (!childUl) {
+                return true;
+            }
+            
+            // Есть вложенный список - переключаем видимость
+            if (childUl.className === 'open') {
+                childUl.className = '';
+                if (icon) icon.textContent = '[+]';
+            } else {
+                childUl.className = 'open';
+                if (icon) icon.textContent = '[-]';
+            }
+            
+            // Запрещаем переход по ссылке
+            if (event.preventDefault) {
+                event.preventDefault();
+            } else {
+                event.returnValue = false;
+            }
+            
+            return false;
+        }
+        
+        // Запуск при загрузке страницы
+        if (window.addEventListener) {
+            window.addEventListener('load', setPlusIcon);
+        } else if (window.attachEvent) {
+            // Поддержка IE8
+            window.attachEvent('onload', setPlusIcon);
+        }
+    </script>
+</body>
+</html>

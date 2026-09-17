@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Задание 2.1 - Плиточная сетка каталога</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .controls {
+            margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .view-toggle {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: 2px solid #2196F3;
+            background: white;
+            color: #2196F3;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            background: #e3f2fd;
+        }
+        
+        .btn.active {
+            background: #2196F3;
+            color: white;
+        }
+        
+        .btn-load-more {
+            width: 100%;
+            margin-top: 30px;
+            padding: 15px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        
+        .btn-load-more:hover {
+            background: #45a049;
+        }
+        
+        .btn-load-more:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        /* Плиточный вид */
+        .catalog-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0;
+            margin: 0 -10px;
+        }
+        
+        .product-item {
+            width: calc(33.333% - 20px);
+            margin: 0 10px 20px;
+            background: white;
+            border: 3px solid;
+            border-radius: 6px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .product-item:nth-child(6n+1) { border-color: #FF5722; }
+        .product-item:nth-child(6n+2) { border-color: #2196F3; }
+        .product-item:nth-child(6n+3) { border-color: #4CAF50; }
+        .product-item:nth-child(6n+4) { border-color: #FFC107; }
+        .product-item:nth-child(6n+5) { border-color: #9C27B0; }
+        .product-item:nth-child(6n+6) { border-color: #FF9800; }
+        
+        .product-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .product-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 48px;
+        }
+        
+        .product-info {
+            padding: 15px;
+        }
+        
+        .product-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .product-price {
+            font-size: 20px;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        
+        /* Списковый вид */
+        .catalog-list .product-item {
+            width: 100%;
+            display: flex;
+            margin: 0 0 15px 0;
+        }
+        
+        .catalog-list .product-image {
+            width: 150px;
+            height: 120px;
+            flex-shrink: 0;
+        }
+        
+        .catalog-list .product-info {
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        /* Адаптивность для планшетов (<1024px) - 2 в ряд */
+        @media (max-width: 1023px) {
+            .product-item {
+                width: calc(50% - 20px);
+            }
+        }
+        
+        /* Адаптивность для мобильных (<768px) - 1 на всю ширину */
+        @media (max-width: 767px) {
+            .product-item {
+                width: calc(100% - 20px);
+            }
+            
+            .catalog-list .product-item {
+                flex-direction: column;
+            }
+            
+            .catalog-list .product-image {
+                width: 100%;
+                height: 200px;
+            }
+            
+            .catalog-list .product-info {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-top: 30px;
+            color: #1976d2;
+            text-decoration: none;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        
+        /*
+         * IE8+ fallback: без flex и calc — float + проценты.
+         * Класс .no-flexbox вешается скриптом (и IE conditional comment).
+         */
+        .no-flexbox .controls,
+        .no-flexbox .view-toggle {
+            display: block;
+        }
+        
+        .no-flexbox .btn {
+            display: inline-block;
+            margin: 0 8px 8px 0;
+        }
+        
+        .no-flexbox .catalog-grid {
+            display: block;
+            overflow: hidden;
+            margin: 0;
+            zoom: 1;
+        }
+        
+        .no-flexbox .catalog-grid .product-item {
+            float: left;
+            display: block;
+            width: 31%;
+            margin: 0 1% 20px;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+        }
+        
+        .no-flexbox .product-image {
+            display: block;
+            text-align: center;
+            line-height: 200px;
+            font-size: 48px;
+        }
+        
+        /* Список без flex: картинка слева, текст рядом */
+        .no-flexbox .catalog-list {
+            display: block;
+        }
+        
+        .no-flexbox .catalog-list .product-item {
+            float: none;
+            width: auto;
+            margin: 0 0 15px;
+            overflow: hidden;
+            zoom: 1;
+        }
+        
+        .no-flexbox .catalog-list .product-image {
+            float: left;
+            width: 150px;
+            height: 120px;
+            line-height: 120px;
+        }
+        
+        .no-flexbox .catalog-list .product-info {
+            display: block;
+            overflow: hidden;
+            zoom: 1;
+            padding: 15px;
+        }
+    </style>
+    <!--[if lt IE 9]>
+    <script>document.documentElement.className += ' no-flexbox';</script>
+    <![endif]-->
+</head>
+<body>
+    <div class="container">
+        <h1>Задание 2.1: Плиточная сетка каталога</h1>
+        
+        <div class="controls">
+            <div class="view-toggle">
+                <button class="btn active" id="btn-grid" onclick="switchView('grid')">
+                    Плитка
+                </button>
+                <button class="btn" id="btn-list" onclick="switchView('list')">
+                    Список
+                </button>
+            </div>
+            <div style="color: #666; font-size: 14px;">
+                <span id="product-count">Показано: 0</span>
+            </div>
+        </div>
+        
+        <div class="catalog-grid" id="catalog">
+            <!-- Товары добавляются через JavaScript -->
+        </div>
+        
+        <button class="btn btn-load-more" id="btn-load-more" onclick="loadMore()">
+            Показать ещё
+        </button>
+        
+        <a href="index.html" class="back-link">Вернуться к списку заданий</a>
+    </div>
+    
+    <script>
+        var allProducts = [];
+        var currentView = 'grid';
+        var displayedCount = 0;
+        var itemsPerPage = 9;
+        var loading = false;
+
+        function switchView(view) {
+            currentView = view;
+            var catalog = document.getElementById('catalog');
+            var btnGrid = document.getElementById('btn-grid');
+            var btnList = document.getElementById('btn-list');
+
+            if (view === 'grid') {
+                catalog.className = 'catalog-grid';
+                btnGrid.className = 'btn active';
+                btnList.className = 'btn';
+            } else {
+                catalog.className = 'catalog-list';
+                btnList.className = 'btn active';
+                btnGrid.className = 'btn';
+            }
+        }
+
+        function renderProduct(product) {
+            var emojis = ['📱', '💻', '⌚', '🎧', '📷', '🖥️', '⌨️', '🖱️', '🎮', '📺', '🔊', '🎥'];
+            var emoji = emojis[(product.id - 1) % emojis.length];
+            var div = document.createElement('div');
+            div.className = 'product-item';
+            div.innerHTML =
+                '<div class="product-image">' + emoji + '</div>' +
+                '<div class="product-info">' +
+                    '<div>' +
+                        '<div class="product-title">' + product.name + '</div>' +
+                        '<div class="product-price">' + formatPrice(product.price) + '</div>' +
+                    '</div>' +
+                '</div>';
+            return div;
+        }
+
+        function formatPrice(price) {
+            return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' ₽';
+        }
+
+        function showProducts(append) {
+            var catalog = document.getElementById('catalog');
+            if (!append) {
+                catalog.innerHTML = '';
+                displayedCount = 0;
+            }
+
+            var endIndex = Math.min(displayedCount + itemsPerPage, allProducts.length);
+            for (var i = displayedCount; i < endIndex; i++) {
+                catalog.appendChild(renderProduct(allProducts[i]));
+            }
+            displayedCount = endIndex;
+            updateUI();
+        }
+
+        // Реальный AJAX: XMLHttpRequest → products.json
+        function fetchProducts(callback) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', 'products.json', true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState !== 4) return;
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    try {
+                        callback(null, JSON.parse(xhr.responseText));
+                    } catch (e) {
+                        callback(e);
+                    }
+                } else {
+                    callback(new Error('HTTP ' + xhr.status));
+                }
+            };
+            xhr.send();
+        }
+
+        function loadMore() {
+            if (loading) return;
+            if (displayedCount >= allProducts.length) return;
+
+            var btn = document.getElementById('btn-load-more');
+            loading = true;
+            btn.disabled = true;
+            btn.textContent = 'Загрузка...';
+
+            // Повторный запрос к JSON (как будто подгрузка следующей порции с сервера)
+            fetchProducts(function(err, data) {
+                loading = false;
+                btn.disabled = false;
+                btn.textContent = 'Показать ещё';
+                if (err) {
+                    alert('Не удалось загрузить товары');
+                    return;
+                }
+                allProducts = data;
+                showProducts(true);
+            });
+        }
+
+        function updateUI() {
+            document.getElementById('product-count').textContent =
+                'Показано: ' + displayedCount + ' из ' + allProducts.length;
+
+            var btn = document.getElementById('btn-load-more');
+            if (displayedCount >= allProducts.length) {
+                btn.style.display = 'none';
+            } else {
+                btn.style.display = 'block';
+            }
+        }
+
+        function init() {
+            fetchProducts(function(err, data) {
+                if (err) {
+                    document.getElementById('catalog').innerHTML =
+                        '<p class="loading">Ошибка загрузки products.json. Открой через http://localhost:8000/</p>';
+                    return;
+                }
+                allProducts = data;
+                showProducts(false);
+            });
+        }
+
+        init();
+
+        (function detectFlexbox() {
+            var test = document.createElement('div');
+            var supportsFlex = 'flex' in test.style
+                || 'webkitFlex' in test.style
+                || 'msFlex' in test.style;
+            if (!supportsFlex) {
+                document.documentElement.className += ' no-flexbox';
+            }
+        })();
+    </script>
+</body>
+</html>

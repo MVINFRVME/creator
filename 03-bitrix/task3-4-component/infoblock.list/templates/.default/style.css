@@ -1,0 +1,71 @@
+.custom-iblock-list {
+    font-family: Arial, sans-serif;
+}
+
+.iblock-items {
+    display: grid;
+    gap: 20px;
+}
+
+.iblock-item {
+    padding: 20px;
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: box-shadow 0.3s;
+}
+
+.iblock-item:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    gap: 15px;
+}
+
+.item-name {
+    margin: 0;
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+    flex: 1;
+}
+
+.item-section {
+    display: inline-block;
+    padding: 4px 12px;
+    background: #2196F3;
+    color: white;
+    border-radius: 12px;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.item-description {
+    color: #666;
+    line-height: 1.6;
+    font-size: 15px;
+}
+
+.no-items {
+    text-align: center;
+    padding: 40px 20px;
+    color: #999;
+    font-size: 16px;
+}
+
+@media (max-width: 768px) {
+    .item-header {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .item-section {
+        align-self: flex-start;
+    }
+}

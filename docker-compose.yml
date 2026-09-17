@@ -1,0 +1,25 @@
+# Демо разделов 1–2 (статика + PHP). Разделы 3–4 — код/видео, без контейнера.
+#
+# Порт по умолчанию 8000 (если 80 занят). Сменить:
+#   WEB_PORT=8081 docker compose up -d
+#
+# Проверка портов на VPS:
+#   ss -tulpn | grep -E ':80|:443|:8000|:8080'
+
+services:
+  php:
+    image: php:8.2-fpm-alpine
+    volumes:
+      - .:/var/www/html
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - "${WEB_PORT:-8000}:80"
+    volumes:
+      - .:/var/www/html:ro
+      - ./deploy/nginx.docker.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - php
+    restart: unless-stopped

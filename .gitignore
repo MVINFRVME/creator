@@ -1,0 +1,30 @@
+.credentials.local.md
+.credentials*
+*.local.md
+.env
+.env.*
+
+# локальный мусор / транскрипты
+_transcript*
+*.log
+
+# архивы для переноса на VM (не в git)
+*.zip
+03-bitrix/*.zip
+03-bitrix/fix35.sh
+
+# PHP uploads
+01-php/uploads/*
+!01-php/uploads/.gitkeep
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Bitrix local runtime (если появится на VPS рядом с репо)
+bitrix/
+upload/
+local/php_interface/init.php

@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Задание 2.4 - Undo для формы</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .description {
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .undo-controls {
+            background: #fff3e0;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .undo-info {
+            color: #e65100;
+            font-size: 14px;
+        }
+        
+        .btn-undo {
+            padding: 10px 20px;
+            background: #FF9800;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        
+        .btn-undo:hover:not(:disabled) {
+            background: #F57C00;
+        }
+        
+        .btn-undo:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: bold;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            font-family: Arial, sans-serif;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #2196F3;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            font-weight: normal;
+            cursor: pointer;
+        }
+        
+        .checkbox-group input {
+            width: auto;
+            margin-right: 8px;
+        }
+        
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
+        .btn-submit:hover {
+            background: #45a049;
+        }
+        
+        .history {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 6px;
+        }
+        
+        .history h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .history-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .history-item {
+            padding: 10px;
+            background: white;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-top: 30px;
+            color: #1976d2;
+            text-decoration: none;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Задание 2.4: Undo для формы</h1>
+        
+        <div class="description">
+            Кнопка «Назад» отменяет последнее изменение любого поля формы до исходного состояния. 
+            Каждое изменение сохраняется в истории. Можно отменять изменения по одному шагу назад.
+        </div>
+        
+        <div class="undo-controls">
+            <div class="undo-info">
+                <span id="undo-count">История: 0 изменений</span>
+            </div>
+            <button class="btn-undo" id="btn-undo" onclick="undoLastChange()" disabled>
+                ← Назад (Отменить)
+            </button>
+        </div>
+        
+        <form id="main-form">
+            <div class="form-group">
+                <label for="username">Имя пользователя:</label>
+                <input type="text" id="username" name="username" placeholder="Введите имя">
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" placeholder="example@domain.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="age">Возраст:</label>
+                <input type="number" id="age" name="age" placeholder="18" min="0" max="120">
+            </div>
+            
+            <div class="form-group">
+                <label for="city">Город:</label>
+                <select id="city" name="city">
+                    <option value="">Выберите город</option>
+                    <option value="moscow">Москва</option>
+                    <option value="spb">Санкт-Петербург</option>
+                    <option value="nsk">Новосибирск</option>
+                    <option value="ekb">Екатеринбург</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Интересы:</label>
+                <div class="checkbox-group">
+                    <label>
+                        <input type="checkbox" name="interests" value="sports"> Спорт
+                    </label>
+                    <label>
+                        <input type="checkbox" name="interests" value="music"> Музыка
+                    </label>
+                    <label>
+                        <input type="checkbox" name="interests" value="tech"> Технологии
+                    </label>
+                    <label>
+                        <input type="checkbox" name="interests" value="art"> Искусство
+                    </label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="bio">О себе:</label>
+                <textarea id="bio" name="bio" placeholder="Расскажите о себе..."></textarea>
+            </div>
+            
+            <button type="submit" class="btn-submit">Отправить форму</button>
+        </form>
+        
+        <div class="history">
+            <h3>История изменений</h3>
+            <div class="history-list" id="history-list">
+                <div class="history-item">История пуста</div>
+            </div>
+        </div>
+        
+        <a href="index.html" class="back-link">Вернуться к списку заданий</a>
+    </div>
+    
+    <script>
+        /**
+         * Система Undo для формы
+         * Сохраняет историю изменений и позволяет отменять их по одному
+         */
+        
+        var UndoSystem = {
+            history: [],
+            initialState: {},
+            
+            // Инициализация: сохраняем начальное состояние
+            init: function() {
+                var form = document.getElementById('main-form');
+                var elements = form.elements;
+                
+                for (var i = 0; i < elements.length; i++) {
+                    var el = elements[i];
+                    if (el.name) {
+                        if (el.type === 'checkbox') {
+                            this.initialState[el.name + '_' + el.value] = el.checked;
+                        } else {
+                            this.initialState[el.name] = el.value;
+                        }
+                    }
+                }
+                
+                this.attachListeners();
+                this.updateUI();
+            },
+            
+            // Подключаем слушатели к полям формы
+            attachListeners: function() {
+                var self = this;
+                var form = document.getElementById('main-form');
+                var elements = form.elements;
+                
+                for (var i = 0; i < elements.length; i++) {
+                    var el = elements[i];
+                    if (el.name && el.type !== 'submit') {
+                        (function(element) {
+                            if (element.type === 'checkbox') {
+                                element.addEventListener('change', function() {
+                                    self.recordChange(element);
+                                });
+                            } else {
+                                element.addEventListener('change', function() {
+                                    self.recordChange(element);
+                                });
+                            }
+                        })(el);
+                    }
+                }
+            },
+            
+            // Записываем изменение в историю
+            recordChange: function(element) {
+                var fieldName = element.name;
+                var oldValue, newValue;
+                
+                if (element.type === 'checkbox') {
+                    var key = fieldName + '_' + element.value;
+                    oldValue = this.getPreviousValue(key);
+                    newValue = element.checked;
+                    
+                    this.history.push({
+                        fieldName: key,
+                        displayName: fieldName + ' [' + element.value + ']',
+                        oldValue: oldValue,
+                        newValue: newValue,
+                        element: element
+                    });
+                } else {
+                    oldValue = this.getPreviousValue(fieldName);
+                    newValue = element.value;
+                    
+                    this.history.push({
+                        fieldName: fieldName,
+                        displayName: this.getFieldLabel(element),
+                        oldValue: oldValue,
+                        newValue: newValue,
+                        element: element
+                    });
+                }
+                
+                this.updateUI();
+            },
+            
+            // Получаем предыдущее значение поля
+            getPreviousValue: function(fieldName) {
+                // Ищем в истории с конца
+                for (var i = this.history.length - 1; i >= 0; i--) {
+                    if (this.history[i].fieldName === fieldName) {
+                        return this.history[i].newValue;
+                    }
+                }
+                // Если в истории нет, возвращаем начальное значение
+                return this.initialState[fieldName] !== undefined ? 
+                    this.initialState[fieldName] : '';
+            },
+            
+            // Получаем текстовое название поля
+            getFieldLabel: function(element) {
+                var label = document.querySelector('label[for="' + element.id + '"]');
+                if (label) {
+                    return label.textContent.replace(':', '');
+                }
+                return element.name;
+            },
+            
+            // Отменяем последнее изменение
+            undo: function() {
+                if (this.history.length === 0) return;
+                
+                var lastChange = this.history.pop();
+                
+                // Восстанавливаем старое значение
+                if (lastChange.element.type === 'checkbox') {
+                    lastChange.element.checked = lastChange.oldValue;
+                } else {
+                    lastChange.element.value = lastChange.oldValue;
+                }
+                
+                this.updateUI();
+            },
+            
+            // Обновляем интерфейс
+            updateUI: function() {
+                var btn = document.getElementById('btn-undo');
+                var count = document.getElementById('undo-count');
+                var historyList = document.getElementById('history-list');
+                
+                // Обновляем счётчик
+                count.textContent = 'История: ' + this.history.length + ' изменений';
+                
+                // Кнопка активна только если есть история
+                btn.disabled = this.history.length === 0;
+                
+                // Обновляем список истории
+                if (this.history.length === 0) {
+                    historyList.innerHTML = '<div class="history-item">История пуста</div>';
+                } else {
+                    var html = '';
+                    for (var i = this.history.length - 1; i >= 0; i--) {
+                        var change = this.history[i];
+                        var oldVal = change.oldValue === '' ? '(пусто)' : change.oldValue;
+                        var newVal = change.newValue === '' ? '(пусто)' : change.newValue;
+                        
+                        if (change.element.type === 'checkbox') {
+                            oldVal = oldVal ? 'выбрано' : 'не выбрано';
+                            newVal = newVal ? 'выбрано' : 'не выбрано';
+                        }
+                        
+                        html += '<div class="history-item">' +
+                            '<strong>' + change.displayName + ':</strong> ' +
+                            oldVal + ' → ' + newVal +
+                            '</div>';
+                    }
+                    historyList.innerHTML = html;
+                }
+            }
+        };
+        
+        // Глобальная функция для кнопки
+        function undoLastChange() {
+            UndoSystem.undo();
+        }
+        
+        // Инициализация при загрузке
+        if (window.addEventListener) {
+            window.addEventListener('load', function() {
+                UndoSystem.init();
+            });
+        } else {
+            window.attachEvent('onload', function() {
+                UndoSystem.init();
+            });
+        }
+        
+        // Обработка отправки формы
+        document.getElementById('main-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Форма отправлена! (демо-режим)');
+        });
+    </script>
+</body>
+</html>
